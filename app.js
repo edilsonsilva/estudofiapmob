@@ -1,5 +1,25 @@
 const express = require("express");
 const cors = require("cors");
+const mongoose = require("mongoose");
+
+const urldb = "mongodb+srv://edilson:Alunos123@clustercliente.2d5la.mongodb.net/banco?retryWrites=true&w=majority";
+
+mongoose.connect(urldb,{useNewUrlParser:true, useUnifiedTopology:true});
+
+const tabela = new mongoose.Schema({
+    nome:{type:String,required:true},
+    email:{type:String, required:true,unique:true},
+    cpf:{type:String,required:true},
+    telefone:String,
+    idade:{type:Number,min:16,max:120},
+    usuario:{type:String,unique:true},
+    senha:String,
+    datacadatro:{type:Date,default:Date.now}
+});
+
+const Cliente = mongoose.model("tbcliente",tabela);
+
+
 
 const app = express();
 
