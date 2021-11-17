@@ -19,26 +19,40 @@ const tabela = new mongoose.Schema({
 
 const Cliente = mongoose.model("tbcliente",tabela);
 
-
-
 const app = express();
 
 app.use(express.json());
 
 app.get("/",(req,res)=>{
-    res.status(200).send({output:"Rota raiz"});
+    
+    Cliente.find((erro,rs)=>{
+        if(erro) return res.status(400).send({output:"Erro ao tentar listar",err:erro});
+
+        res.status(200).send({output:"Clientes cadastrados",payload:rs});
+    });
 });
 
 app.post("/cadastro",(req,res)=>{
-    res.status(201).send({output:"Rota do cadastro",payload:req.body});
+
+    const rs = new Cliente(req.body);
+    rs.save().then((dt)=>{
+        res.status(201).send({output:"Cadastro realizado!",payload:dt})
+    }).catch((erro)=>res.status(400).send({output:`Erro ao tentar cadastrar`, err:erro}))
+
 });
 
 app.put("/atualizar/:id",(req,res)=>{
-    res.status(200).send({output:"Rota do atualizar",payload:req.body});
+    Cliente.findByIdAndUpdate(req.params.id,req.body,{new:true},(erro,rs)=>{
+        if(erro) return res.status(400).send({output:"Erro ao atualizar",err:erro});
+        res.status(200).send({output:"Dados atualizados",payload:rs});
+    });
 });
 
 app.delete("/apagar/:id",(req,res)=>{
-    res.status(204).send({output:"Rota do apagar"});
+    Cliente.findByIdAndDelete(req.params.id,(erro,rs)=>{
+        if(erro) return res.status(400).send({output:"Erro ao apagar",err:erro});
+        res.status(204).send({output:"Apagado com sucesso"});
+    });
 });
 
 app.use((req,res)=>{
